@@ -1,4 +1,5 @@
 export const createRouter = (store) => {
+ 
   const getRoute = () => {
     const hash = window.location.hash;
     switch (hash) {
@@ -18,7 +19,10 @@ export const createRouter = (store) => {
       payload: route,
     });
   };
-  window.onhashchange = handleHashChange;
+
   
+  window.onhashchange = handleHashChange;
+
+  // Trigger the handler once on initialization for the initial page load.
   handleHashChange();
 };

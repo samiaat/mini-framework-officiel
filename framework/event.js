@@ -1,4 +1,4 @@
-// bach manstaamloch addeventlisner
+//no addeventlisner
 export function applyEventHandlers(element, props) {
   for (const [key, value] of Object.entries(props)) {
     if (key.startsWith('on') && typeof value === 'function') {

@@ -41,7 +41,7 @@ export const render = (vnode) => {
     }
   }
 
-  // Recursively 
+  // Recursively render 
   for (const child of children) {
     element.appendChild(render(child));
   }
@@ -49,24 +49,10 @@ export const render = (vnode) => {
   return element;
 };
 
+
+
 export const mount = (node, target) => {
   target.innerHTML = '';
   target.appendChild(node);
   return node;
-};
-
-
-export const createApp = (component, target) => {
-    let currentVNode = component();
-    let rootNode = render(currentVNode);
-    mount(rootNode, target);
-
-    return () => {
-        const newVNode = component();
-        const newRootNode = render(newVNode);
-        rootNode.replaceWith(newRootNode);
-
-        currentVNode = newVNode;
-        rootNode = newRootNode;
-    };
 };
