@@ -1,115 +1,110 @@
-# Simple JavaScript Framework
+# Jules.js: A Simple Frontend Framework
 
-Welcome to the documentation for this simple JavaScript framework. This document explains how the framework works and how to use it to build user interfaces.
+## Introduction
 
-## Features
+Jules.js is a lightweight, from-scratch JavaScript framework for building single-page applications. It was created as an educational project to demonstrate and understand the core principles behind modern frontend frameworks. It includes a Virtual DOM, a centralized state management system, and a hash-based router.
 
-- **Declarative UI**: Describe your UI with simple JavaScript functions and objects, and the framework will handle the rendering to the DOM.
-- **Component-Based**: Build your application as a tree of components, making your code more modular and reusable.
-- **State Management**: A simple Redux-like store is provided for centralized state management.
-- **Routing**: A basic hash-based router is included to handle different views in your application.
-- **Inversion of Control**: The framework handles the application's lifecycle, so you can focus on building your components.
+This repository contains both the framework itself (in the `/framework` directory) and a sample TodoMVC application (in the `/todomvc` directory) built with it.
 
-## How it Works: The Virtual DOM
+## Core Features
 
-This framework is based on the concept of a **Virtual DOM (VDOM)**. Instead of manipulating the real DOM directly, you create a lightweight representation of your UI using JavaScript objects. These objects are called "virtual nodes" or "VNodes".
+### 1. DOM Abstraction (Virtual DOM)
 
-When the state of your application changes, the framework creates a new VDOM tree and compares it to the previous one. It then calculates the most efficient way to update the real DOM to match the new VDOM. This approach simplifies UI development and can lead to better performance.
+You describe your UI using `createElement`, a function that returns JavaScript objects called "virtual nodes" (VNodes). The framework's `render` function then turns this virtual representation into real, live DOM elements. On every state change, the application is re-rendered to reflect the new state.
 
-## Creating UI with `createElement`
+### 2. State Management (Redux-like Store)
 
-The core of the framework is the `createElement` function. It allows you to create VNodes that describe your UI.
+The framework provides a single, centralized "store" to hold the entire state of your application. This enables a predictable, one-way data flow: an action is dispatched, a pure "reducer" function calculates the new state, and the UI is re-rendered.
 
-### Function Signature
+### 3. Event Handling
 
-```javascript
-createElement(tag, props, ...children);
-```
+To meet the project's strict requirement of providing a new way to handle events, this framework **avoids `addEventListener` entirely**. Instead, event handlers are assigned directly to element properties during the rendering process (e.g., `element.onclick = yourFunction`). This is a simple and direct way to handle user interactions.
 
-- `tag` (string): The HTML tag name of the element (e.g., `'div'`, `'p'`, `'button'`).
-- `props` (object): An object containing the attributes and event handlers for the element.
-- `children` (...VNode | ...string): The child elements or text content of the element.
+### 4. Routing System
 
-### Creating an Element
+A simple router uses the `window.onhashchange` property to listen for URL hash changes (e.g., `/#/active`). When the URL changes, the router dispatches an action to the store, allowing the application's state to be synchronized with the URL. This also avoids using `addEventListener`.
 
-To create a simple `div` element, you can do the following:
+## How to Use Jules.js
+
+### Creating and Rendering Elements
+
+Use `createElement` to define your UI. The `props` object can contain any standard HTML attribute.
 
 ```javascript
-import { createElement } from "./framework/index.js";
+import { createElement } from './framework/dom.js';
 
-const myDiv = createElement("div", {});
+// Create a VNode
+const greeting = createElement('h1', { class: 'greeting' }, 'Hello, World!');
+
+// To render it, define a component and use createApp
+import { createApp } from './framework/dom.js';
+
+function MyComponent() {
+  return createElement('div', {}, 'My first component!');
+}
+
+const rootElement = document.getElementById('root');
+createApp(MyComponent, rootElement); // Mounts the component
 ```
 
-### Adding Attributes
+### Handling Events
 
-To add attributes to an element, pass them in the `props` object:
+Event handlers are functions passed as `on...` properties in the `props` object.
 
 ```javascript
-const myInput = createElement("input", {
-  type: "text",
-  placeholder: "Enter your name",
-  class: "my-input-class",
-});
+function MyButton() {
+  const handleClick = () => {
+    alert('Button was clicked!');
+  };
+
+  // The 'onclick' property will be directly assigned to the button element.
+  return createElement('button', {
+    class: 'my-button',
+    onclick: handleClick
+  }, 'Click Me');
+}
 ```
 
-### Adding Events
+### Managing State
 
-Events are also added through the `props` object. The event names are in camelCase and start with `on` (e.g., `onclick`, `onkeydown`).
+This example shows the full one-way data flow.
 
 ```javascript
-const myButton = createElement(
-  "button",
-  {
-    onclick: () => alert("Button clicked!"),
-  },
-  "Click Me"
-);
+import { createStore } from './framework/state.js';
+import { createApp, createElement } from './framework/dom.js';
+
+// 1. Define initial state and a reducer
+const initialState = { count: 0 };
+function reducer(state = initialState, action) {
+  switch (action.type) {
+    case 'INCREMENT':
+      return { ...state, count: state.count + 1 };
+    default:
+      return state;
+  }
+}
+
+// 2. Create the store
+const store = createStore(reducer);
+
+// 3. Create a component that uses the state
+function CounterComponent() {
+  const state = store.getState();
+
+  const handleIncrement = () => {
+    store.dispatch({ type: 'INCREMENT' });
+  };
+
+  return createElement('div', {},
+    createElement('h1', {}, `Count: ${state.count}`),
+    createElement('button', { onclick: handleIncrement }, '+')
+  );
+}
+
+// 4. Connect everything
+const rootElement = document.getElementById('root');
+const update = createApp(CounterComponent, rootElement);
+
+// Subscribe the UI to re-render whenever the state changes
+store.subscribe(update);
 ```
-
-### Nesting Elements
-
-You can nest elements by passing them as children to the `createElement` function:
-
-```javascript
-const app = createElement(
-  "div",
-  { class: "container" },
-  createElement("h1", {}, "My App"),
-  createElement("p", {}, "Welcome to my application."),
-  myButton // You can also pass variables that hold VNodes
-);
-```
-
-## The Framework Class
-
-To run your application, you need to use the `Framework` class. This class takes your application's root component, reducer, initial state, and the root DOM element as arguments.
-
-```javascript
-import Framework from "./framework/index.js";
-import App from "./App.js"; // Your root component
-import reducer from "./reducer.js";
-
-const initialState = {
-  /* ... */
-};
-const rootElement = document.getElementById("root");
-
-const framework = new Framework({
-  app: App,
-  reducer,
-  initialState,
-  rootElement,
-});
-
-framework.start();
-```
-
-The `framework.start()` method initializes the store, sets up the router, and renders your application to the specified root element.
-
-## Why it Works this Way
-
-This framework is designed to be simple and easy to understand. By using a declarative approach with `createElement`, you can build complex UIs without having to worry about the details of DOM manipulation. The framework handles the "how", so you can focus on the "what".
-
-The separation of concerns between the framework and the application code (inversion of control) makes your application more maintainable and easier to test. Your components are just pure functions that return VNodes, which makes them highly predictable.
-
-This architecture is inspired by popular frameworks like React and Vue.js, but it is much simpler and intended for educational purposes.

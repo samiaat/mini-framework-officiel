@@ -1,3 +1,4 @@
+
 export const createRouter = (store) => {
  
   const getRoute = () => {
@@ -12,6 +13,7 @@ export const createRouter = (store) => {
     }
   };
 
+  
   const handleHashChange = () => {
     const route = getRoute();
     store.dispatch({
@@ -20,9 +22,8 @@ export const createRouter = (store) => {
     });
   };
 
-  
+ 
   window.onhashchange = handleHashChange;
 
-  // Trigger the handler once on initialization for the initial page load.
   handleHashChange();
 };
