@@ -1,8 +1,8 @@
-# Jules.js: A Simple Frontend Framework
+# Facile.js: A Simple Frontend Framework
 
 ## Introduction
 
-Jules.js is a lightweight, from-scratch JavaScript framework for building single-page applications. It was created as an educational project to demonstrate and understand the core principles behind modern frontend frameworks. It includes a Virtual DOM, a centralized state management system, and a hash-based router.
+Facile.js is a lightweight, from-scratch JavaScript framework for building single-page applications. It was created as an educational project to demonstrate and understand the core principles behind modern frontend frameworks. It includes a Virtual DOM, a centralized state management system, and a hash-based router.
 
 This repository contains both the framework itself (in the `/framework` directory) and a sample TodoMVC application (in the `/todomvc` directory) built with it.
 
@@ -24,7 +24,7 @@ To meet the project's strict requirement of providing a new way to handle events
 
 A simple router uses the `window.onhashchange` property to listen for URL hash changes (e.g., `/#/active`). When the URL changes, the router dispatches an action to the store, allowing the application's state to be synchronized with the URL. This also avoids using `addEventListener`.
 
-## How to Use Jules.js
+## How to Use Facile.js
 
 ### Creating and Rendering Elements
 
